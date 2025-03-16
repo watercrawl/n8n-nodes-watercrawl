@@ -1,6 +1,6 @@
 {
   "name": "@watercrawl/n8n-nodes-watercrawl",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "WaterCrawl Node for n8n",
   "keywords": [
     "n8n-community-node-package"
@@ -52,6 +52,7 @@
     "@commitlint/config-conventional": "^18.5.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
+    "@semantic-release/npm": "^12.0.1",
     "@types/axios": "^0.14.4",
     "@types/jest": "^29.5.14",
     "@types/mocha": "^10.0.10",
@@ -67,7 +68,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-environment-node": "^29.7.0",
     "prettier": "^3.3.2",
-    "semantic-release": "^23.0.5",
+    "semantic-release": "^23.1.1",
     "ts-jest": "^29.2.6",
     "typescript": "^5.5.3"
   },
