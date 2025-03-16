@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  # This workflow will run on pushes to main once you're ready
+  # For now, we'll use manual dispatch to test it
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to npm'
+        required: true
+        default: false
+        type: boolean
+  # Uncomment when ready to enable automatic release
+  # push:
+  #   branches:
+  #     - main
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.1.4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Setup semantic-release
+        run: pnpm add -D semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/npm
+
+      # IMPORTANT REQUIREMENTS FOR PUBLISHING:
+      # 1. Add NPM_TOKEN to repository secrets
+      #    - Create token at https://www.npmjs.com/settings/[username]/tokens
+      #    - Add to GitHub repo at Settings > Secrets > Actions > New repository secret
+      - name: Setup .npmrc file for publish
+        if: github.event_name == 'push' || inputs.publish
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+          npm config set access public
+
+      # This step will:
+      # 1. Analyze commits to determine version bump (major.minor.patch)
+      # 2. Update CHANGELOG.md with all changes
+      # 3. Create Git tag for the new version
+      # 4. Publish package to npm registry
+      - name: Release
+        if: github.event_name == 'push' || inputs.publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
